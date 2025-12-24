@@ -43,7 +43,7 @@ router.get('/all', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     await Contact.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Contact deleted successfully' });
+    res.json({ message: 'Contact deleted successfully!' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting contact', error: error.message });
   }
