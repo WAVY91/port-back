@@ -25,7 +25,7 @@ router.post('/send', async (req, res) => {
     await sendUserConfirmation(contact);
     await sendAdminNotification(contact);
 
-    res.status(201).json({ message: 'Message sent successfully', contact });
+    res.status(201).json({ message: 'Message sent successfully!', contact });
   } catch (error) {
     res.status(500).json({ message: 'Error sending message', error: error.message });
   }
