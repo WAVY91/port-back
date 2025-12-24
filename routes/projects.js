@@ -32,7 +32,7 @@ router.post('/', authMiddleware, async (req, res) => {
     });
 
     await project.save();
-    res.status(201).json({ message: 'Project added successfully', project });
+    res.status(201).json({ message: 'Project added successfully!', project });
   } catch (error) {
     res.status(500).json({ message: 'Error adding project', error: error.message });
   }
