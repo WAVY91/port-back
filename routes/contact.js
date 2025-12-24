@@ -1,6 +1,6 @@
 const express = require('express');
 const Contact = require('../models/Contact');
-const { sendAdminNotification } = require('../config/email');
+const { sendAdminNotification, sendUserConfirmation } = require('../config/email');
 
 const router = express.Router();
 
@@ -22,6 +22,7 @@ router.post('/send', async (req, res) => {
 
     await contact.save();
 
+    await sendUserConfirmation(contact);
     await sendAdminNotification(contact);
 
     res.status(201).json({ message: 'Message sent successfully', contact });

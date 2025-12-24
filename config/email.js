@@ -1,20 +1,51 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.ADMIN_EMAIL,
-    pass: process.env.ADMIN_PASSWORD,
-  },
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+const sendUserConfirmation = async (contactData) => {
+  try {
+    const { name, email } = contactData;
+
+    const msg = {
+      to: email,
+      from: process.env.ADMIN_EMAIL,
+      subject: 'Thank You for Contacting Us',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <h2 style="color: #333;">Thank You, ${name}!</h2>
+          <hr style="border: none; border-top: 1px solid #ddd;">
+          
+          <div style="margin: 20px 0;">
+            <p>Hi ${name},</p>
+            <p>We have received your message and appreciate you taking the time to contact us. We will review your message and get back to you as soon as possible.</p>
+            <p>In the meantime, if you have any questions, feel free to reach out to us again.</p>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid #ddd;">
+          <p style="color: #666; font-size: 12px; text-align: center;">
+            Best regards,<br/>
+            The Team
+          </p>
+        </div>
+      `,
+    };
+
+    await sgMail.send(msg);
+    console.log('User confirmation email sent successfully');
+    return true;
+  } catch (error) {
+    console.error('Error sending user confirmation email:', error);
+    return false;
+  }
+};
 
 const sendAdminNotification = async (contactData) => {
   try {
     const { name, email, phone, subject, message } = contactData;
 
-    const mailOptions = {
-      from: process.env.ADMIN_EMAIL,
+    const msg = {
       to: process.env.ADMIN_EMAIL,
+      from: process.env.ADMIN_EMAIL,
       subject: `New Contact Message: ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
@@ -43,8 +74,8 @@ const sendAdminNotification = async (contactData) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log('Admin notification sent successfully');
+    await sgMail.send(msg);
+    console.log('Admin notification email sent successfully');
     return true;
   } catch (error) {
     console.error('Error sending admin notification:', error);
@@ -52,4 +83,4 @@ const sendAdminNotification = async (contactData) => {
   }
 };
 
-module.exports = { sendAdminNotification };
+module.exports = { sendUserConfirmation, sendAdminNotification };
