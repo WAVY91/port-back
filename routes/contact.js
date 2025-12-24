@@ -22,10 +22,19 @@ router.post('/send', async (req, res) => {
 
     await contact.save();
 
-    await sendUserConfirmation(contact);
-    await sendAdminNotification(contact);
+    try {
+      await sendUserConfirmation(contact);
+    } catch (emailError) {
+      console.error('Failed to send user confirmation email:', emailError);
+    }
 
-    res.status(201).json({ message: 'Message sent successfully!', contact });
+    try {
+      await sendAdminNotification(contact);
+    } catch (emailError) {
+      console.error('Failed to send admin notification email:', emailError);
+    }
+
+    res.status(201).json({ message: 'Message sent successfully! We will contact you soon.', contact });
   } catch (error) {
     res.status(500).json({ message: 'Error sending message', error: error.message });
   }
