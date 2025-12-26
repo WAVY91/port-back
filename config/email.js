@@ -1,14 +1,20 @@
-const sgMail = require('@sendgrid/mail');
+const nodemailer = require('nodemailer');
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.ADMIN_EMAIL,
+    pass: process.env.ADMIN_PASSWORD,
+  },
+});
 
 const sendUserConfirmation = async (contactData) => {
   try {
     const { name, email } = contactData;
 
-    const msg = {
-      to: email,
+    const mailOptions = {
       from: process.env.ADMIN_EMAIL,
+      to: email,
       subject: 'Thank You for Contacting Us',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
@@ -30,7 +36,7 @@ const sendUserConfirmation = async (contactData) => {
       `,
     };
 
-    await sgMail.send(msg);
+    await transporter.sendMail(mailOptions);
     console.log('User confirmation email sent successfully');
     return true;
   } catch (error) {
@@ -43,9 +49,9 @@ const sendAdminNotification = async (contactData) => {
   try {
     const { name, email, phone, subject, message } = contactData;
 
-    const msg = {
-      to: process.env.ADMIN_EMAIL,
+    const mailOptions = {
       from: process.env.ADMIN_EMAIL,
+      to: process.env.ADMIN_EMAIL,
       subject: `New Contact Message: ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
@@ -74,7 +80,7 @@ const sendAdminNotification = async (contactData) => {
       `,
     };
 
-    await sgMail.send(msg);
+    await transporter.sendMail(mailOptions);
     console.log('Admin notification email sent successfully');
     return true;
   } catch (error) {
