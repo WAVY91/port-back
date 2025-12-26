@@ -6,11 +6,27 @@ const transporter = nodemailer.createTransport({
     user: process.env.ADMIN_EMAIL,
     pass: process.env.ADMIN_PASSWORD,
   },
+  pool: {
+    maxConnections: 5,
+    maxMessages: 100,
+    rateDelta: 4000,
+    rateLimit: 5,
+  },
 });
 
 const sendUserConfirmation = async (contactData) => {
   try {
+    if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+      console.warn('Email credentials not configured, skipping user confirmation email');
+      return false;
+    }
+
     const { name, email } = contactData;
+
+    if (!email) {
+      console.warn('No email provided for user confirmation');
+      return false;
+    }
 
     const mailOptions = {
       from: process.env.ADMIN_EMAIL,
@@ -40,13 +56,18 @@ const sendUserConfirmation = async (contactData) => {
     console.log('User confirmation email sent successfully');
     return true;
   } catch (error) {
-    console.error('Error sending user confirmation email:', error);
+    console.error('Error sending user confirmation email:', error.message);
     return false;
   }
 };
 
 const sendAdminNotification = async (contactData) => {
   try {
+    if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+      console.warn('Email credentials not configured, skipping admin notification email');
+      return false;
+    }
+
     const { name, email, phone, subject, message } = contactData;
 
     const mailOptions = {
@@ -84,7 +105,7 @@ const sendAdminNotification = async (contactData) => {
     console.log('Admin notification email sent successfully');
     return true;
   } catch (error) {
-    console.error('Error sending admin notification:', error);
+    console.error('Error sending admin notification:', error.message);
     return false;
   }
 };
